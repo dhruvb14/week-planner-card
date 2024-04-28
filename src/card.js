@@ -60,6 +60,7 @@ export class WeekPlannerCard extends LitElement {
     _numberOfDays;
     _updateInterval;
     _noCardBackground;
+    _maxCardHeight;
     _eventBackground;
     _compact;
     _language;
@@ -107,6 +108,7 @@ export class WeekPlannerCard extends LitElement {
         this._startDate = this._getStartDate(config.startingDay ?? 'today');
         this._updateInterval = config.updateInterval ?? 60;
         this._noCardBackground = config.noCardBackground ?? false;
+        this._maxCardHeight = config.maxCardHeight ?? 0;
         this._eventBackground = config.eventBackground ?? 'var(--card-background-color, inherit)';
         this._compact = config.compact ?? false;
         this._dateFormat = config.dateFormat ?? 'cccc d LLLL yyyy';
@@ -199,7 +201,20 @@ export class WeekPlannerCard extends LitElement {
             </ha-card>
         `;
     }
-
+    autoScrollOnOverflow(){
+        // ha-card > div > div > div:nth-child(1) > div.events
+        document.getElementsByClassName("events").forEach(x=> {
+            console.log(x);
+            var requiresScrolling = false;
+            var scrollHeight = x.scrollHeight;
+            if(scrollHeight > this._maxCardHeight){
+                requiresScrolling = true;
+            }
+            if(requiresScrolling){
+                x.scrollTop = scrollHeight;
+            }
+        });
+    }
     _renderDays() {
         if (!this._days) {
             return html``;
@@ -289,6 +304,7 @@ export class WeekPlannerCard extends LitElement {
                 `
             })}
         `;
+        this.autoScrollOnOverflow();
     }
 
     _renderEventDetailsDialog() {
